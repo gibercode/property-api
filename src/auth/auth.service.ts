@@ -3,8 +3,9 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PASSWORD_SALT_ROUNDS } from '@common';
+import { JWTPayload, PASSWORD_SALT_ROUNDS } from '@common';
 import { Usuario } from '@entities/usuario.entity';
 import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
@@ -17,6 +18,7 @@ export class AuthService {
   constructor(
     @InjectRepository(Usuario)
     private readonly usuarioRepository: Repository<Usuario>,
+    private readonly jwtService: JwtService,
   ) {}
 
   async register(body: RegisterUserDto) {
@@ -39,7 +41,7 @@ export class AuthService {
     });
 
     const savedUser = await this.usuarioRepository.save(user);
-    const { password, ...userWithoutPassword } = savedUser;
+    const { password, id, ...userWithoutPassword } = savedUser;
 
     return apiResponse(userWithoutPassword);
   }
@@ -59,8 +61,33 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales invalidas');
     }
 
-    const { password: _, ...userWithoutPassword } = user;
+    const { password: _, id, ...userWithoutPassword } = user;
+
+    const accessToken = await this.generateAccessToken({
+      sub: user.id,
+    });
+
+    return apiResponse({
+      ...userWithoutPassword,
+      accessToken,
+    });
+  }
+
+  async me(userId: string) {
+    const user = await this.usuarioRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Usuario no autorizado');
+    }
+
+    const { password, id, ...userWithoutPassword } = user;
 
     return apiResponse(userWithoutPassword);
+  }
+
+  private generateAccessToken(payload: JWTPayload): Promise<string> {
+    return this.jwtService.signAsync(payload);
   }
 }
