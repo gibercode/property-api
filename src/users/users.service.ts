@@ -106,6 +106,7 @@ export class UsersService {
     }
 
     await this.usuarioRepository.update(userId, { activo: false });
+    await this.usuarioRepository.softDelete(userId);
 
     return apiResponse(true);
   }

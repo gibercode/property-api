@@ -1,4 +1,12 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Inmueble } from './inmueble.entity';
 
 @Entity('usuario')
@@ -20,4 +28,13 @@ export class Usuario {
 
   @OneToMany(() => Inmueble, (inmueble) => inmueble.vendedor)
   inmuebles: Inmueble[];
+
+  @CreateDateColumn({ name: 'createdAt' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updatedAt' })
+  updatedAt: Date;
+
+  @DeleteDateColumn({ name: 'deletedAt' })
+  deletedAt: Date;
 }

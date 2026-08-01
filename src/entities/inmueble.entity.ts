@@ -1,12 +1,16 @@
 import {
   Column,
+  CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { Usuario } from './usuario.entity';
 import { TipoInmueble } from './tipo-inmueble.entity';
+import { InmuebleEstado } from '../inmuebles/enums';
 
 @Entity('inmueble')
 export class Inmueble {
@@ -25,6 +29,13 @@ export class Inmueble {
   @Column({ type: 'int' })
   metrosCuadrados: number;
 
+  @Column({
+    type: 'enum',
+    enum: InmuebleEstado,
+    default: InmuebleEstado.DISPONIBLE,
+  })
+  estado: InmuebleEstado;
+
   @Column({ type: 'uuid', name: 'vendedorId' })
   vendedorId: string;
 
@@ -42,4 +53,13 @@ export class Inmueble {
   })
   @JoinColumn({ name: 'tipoInmuebleId' })
   tipoInmueble: TipoInmueble;
+
+  @CreateDateColumn({ name: 'createdAt' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updatedAt' })
+  updatedAt: Date;
+
+  @DeleteDateColumn({ name: 'deletedAt' })
+  deletedAt: Date;
 }
