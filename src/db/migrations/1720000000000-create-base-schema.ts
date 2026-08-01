@@ -1,5 +1,5 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
-import { TIPOS_INMUEBLE_SEED } from '../seeds';
+import { TIPOS_INMUEBLE_SEED, USUARIOS_SEED } from '../seeds';
 
 export class CreateBaseSchema1720000000000 implements MigrationInterface {
   name = 'CreateBaseSchema1720000000000';
@@ -91,6 +91,16 @@ export class CreateBaseSchema1720000000000 implements MigrationInterface {
     await queryRunner.query(`
       CREATE INDEX "IDX_inmueble_created_at" ON "inmueble" ("createdAt")
     `);
+
+    for (const usuario of USUARIOS_SEED) {
+      await queryRunner.query(
+        `
+          INSERT INTO "usuario" ("nombre", "email", "password", "activo")
+          VALUES ($1, $2, $3, true)
+        `,
+        [usuario.nombre, usuario.email, usuario.password],
+      );
+    }
 
     for (const tipoInmueble of TIPOS_INMUEBLE_SEED) {
       await queryRunner.query(

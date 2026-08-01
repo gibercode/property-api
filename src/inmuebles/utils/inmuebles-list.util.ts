@@ -56,6 +56,11 @@ export const buildInmuebleWhereConditions = (
   userId: string,
 ): InmuebleWhereCondition[] => [
   {
+    apply: true,
+    condition: 'inmueble.deletedAt IS NULL',
+    parameters: {},
+  },
+  {
     apply: Boolean(filters.estado),
     condition: 'inmueble.estado = :estado',
     parameters: { estado: filters.estado },
